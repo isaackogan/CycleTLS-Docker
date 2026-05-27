@@ -7,7 +7,7 @@ This repository exists to make CycleTLS usable as a standalone, language-agnosti
 ## Usage
 
 ```bash
-docker run --rm -p 127.0.0.1:9112:9112 isaackogan/cycletls-docker:<cycletls-git-ref>
+docker run --rm -p 127.0.0.1:9112:9112 ghcr.io/isaackogan/cycletls-docker:<cycletls-git-ref>
 ```
 
 The image tag corresponds to the upstream CycleTLS git ref (commit hash or tag) the binary was built against.
@@ -25,7 +25,7 @@ Requests are JSON: `{ "requestId": "...", "options": { ... } }`. Responses are C
 - `src/` Go source for the WebSocket server binary
 - `test/` E2E test that exercises a running container
 - `Dockerfile` multi-stage build, accepts `CYCLETLS_REF` build arg
-- `.github/workflows/publish.yml` builds, tests, and pushes to Docker Hub on manual dispatch
+- `.github/workflows/publish.yml` builds, tests, and pushes to GHCR on manual dispatch
 
 ## Security note
 
