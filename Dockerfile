@@ -1,0 +1,28 @@
+FROM golang:1.24-alpine AS builder
+
+ARG CYCLETLS_REF=""
+
+WORKDIR /src
+
+COPY src/ ./
+
+RUN if [ -n "$CYCLETLS_REF" ]; then \
+      go get github.com/Danny-Dasilva/CycleTLS/cycletls@${CYCLETLS_REF} && \
+      go mod tidy; \
+    fi && \
+    go mod download
+
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-s -w" \
+    -o /out/cycletls \
+    .
+
+FROM gcr.io/distroless/static-debian12:nonroot
+
+COPY --from=builder /out/cycletls /cycletls
+
+ENV WS_PORT=9112
+EXPOSE 9112
+
+USER nonroot:nonroot
+ENTRYPOINT ["/cycletls"]
