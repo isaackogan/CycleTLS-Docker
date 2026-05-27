@@ -1,6 +1,8 @@
-FROM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 ARG CYCLETLS_REF=""
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /src
 
@@ -12,7 +14,7 @@ RUN if [ -n "$CYCLETLS_REF" ]; then \
     fi && \
     go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build \
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
     -ldflags="-s -w" \
     -o /out/cycletls \
     .
