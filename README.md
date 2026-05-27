@@ -4,6 +4,8 @@ A minimal Docker wrapper around [CycleTLS](https://github.com/Danny-Dasilva/Cycl
 
 This repository exists to make CycleTLS usable as a standalone, language-agnostic service. Instead of pulling in the `cycletls` npm package and spawning the binary from Node, you can run this image and connect to `ws://localhost:9112/` from any language that speaks WebSockets.
 
+Latest Release: `28f3d8b`
+
 ## Usage
 
 ```bash
