@@ -4,6 +4,10 @@ ARG CYCLETLS_REF=""
 ARG TARGETOS
 ARG TARGETARCH
 
+# git is required for `go get <module>@<commit-hash>`, which resolves the
+# module via VCS rather than the module proxy.
+RUN apk add --no-cache git
+
 WORKDIR /src
 
 COPY src/ ./
