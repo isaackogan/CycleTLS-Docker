@@ -30,5 +30,7 @@ COPY --from=builder /out/cycletls /cycletls
 ENV WS_PORT=9112
 EXPOSE 9112
 
-USER nonroot:nonroot
+# Numeric UID/GID (distroless "nonroot" is 65532) so Kubernetes can verify
+# runAsNonRoot at admission; a username cannot be resolved to a UID.
+USER 65532:65532
 ENTRYPOINT ["/cycletls"]
