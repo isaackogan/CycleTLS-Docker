@@ -1,2 +1,6 @@
 .idea
 *.iml
+
+# Compiled Go binary (built into the Docker image, not committed)
+/src/cycletls-docker
+/src/cycletls

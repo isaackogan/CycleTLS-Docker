@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -23,23 +25,34 @@ func main() {
 	}
 	addr := ":" + port
 
+	registerMetrics()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health_check", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
-	mux.HandleFunc("/", cycletls.WSEndpoint)
+	mux.Handle("/metrics", promhttp.Handler())
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("WebSocket connection from %s (user-agent: %q)", r.RemoteAddr, r.UserAgent())
+		cycletls.WSEndpoint(w, r)
+	})
 
 	srv := &http.Server{Addr: addr, Handler: mux}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		log.Fatalf("failed to listen on %s: %v", addr, err)
+	}
+
 	serverErr := make(chan error, 1)
 	go func() {
 		log.Printf("CycleTLS WebSocket server listening on %s", addr)
-		serverErr <- srv.ListenAndServe()
+		serverErr <- srv.Serve(meteredListener{ln})
 	}()
 
 	select {
